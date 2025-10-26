@@ -1,4 +1,4 @@
-,id,Geographic Area Name,Estimate!!Gini Index,year,fips_code
+,id,Geographic Area Name,Estimate!!Gini Index,year,FIPS_STCO
 0,0500000US25001,"Barnstable County, Massachusetts",0.4542,2019,25001
 1,0500000US25003,"Berkshire County, Massachusetts",0.4621,2019,25003
 2,0500000US25005,"Bristol County, Massachusetts",0.4579,2019,25005

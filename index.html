@@ -60,6 +60,15 @@
             justify-content: center;
         }
 
+        .map {
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            stroke: #333;
+            stroke-width: 5px;
+            border-radius: 10px;
+        }
+
 
     </style>
 
@@ -70,12 +79,21 @@
     <div class="container">
         <h1> Major Assignment 2 </h1>
         <h3> Anamika Menon      </h3>
-        <h4> Actual Population in 1980 </h4>
-        <div class="fig1"></div>
-        <h4> Population Change from 1980-2010 </h4>
-        <div class="fig2"></div>
-        <h4> Gini Index in 2019 </h4>
-        <div class="fig3"></div>
+        <div class="map">
+            <hr/><hr/>
+            <h4> Actual Population in 1980 </h4>
+            <div class="fig1"></div>
+            <hr/>
+        </div>
+        <div class="map">
+            <h4> Population Change from 1980-2010 </h4>
+            <div class="fig2"></div>
+            <hr/>
+        </div>
+        <div class="map">
+            <h4> Gini Index in 2019 </h4>
+            <div class="fig3"></div>
+        </div>
     </div>
 
     <script>
@@ -357,9 +375,10 @@
             //https://observablehq.com/@d3/working-with-color
             //https://colorbrewer2.org/#type=diverging&scheme=RdYlBu&n=6
             const colorInterpolator = d3.interpolateRgbBasis(['#d73027','#fc8d59','#fee090','#e0f3f8','#91bfdb','#4575b4'].reverse())
-            
-            console.log(topology_data);
-            console.log(csv_data)
+
+            // if the data is scaled using linear scale
+            const linearScale = d3.scaleLinear()
+                .domain(d3.extent(csv_data, (d) => d['Estimate!!Gini Index'])).range([0, 1]);
             
 
             /*-------------------------------------------------------*/
@@ -376,19 +395,29 @@
                 .append("path")
                 .attr("d", d => geoPath_generator(d))
                 //.attr("fill", d => colorInterpolator(logScale(d['properties']['POP2010'])))
-                .attr("fill", d => colorInterpolator(linearScale(d['properties']['POP2010'])))
-                .on("mouseenter", (m, d) => {
+                .attr("fill", d => colorInterpolator(linearScale(d['properties']['FIPS_STCO'] in countyGiniMap ? countyGiniMap[d['properties']['FIPS_STCO']].find(arr => arr[0] === 2019)[1] : 0)))
+                .on("mouseenter", (event, d) => {
                     tooltip.transition()
                         .duration(200)
                         .style("opacity", .9)
-                    tooltip.html(d['properties']['TOWN'])
-                        .style("left", m.clientX + "px")
-                        .style("top", m.clientY + "px");
+                    tooltip.html(`<strong>${d['properties']['TOWN']}</strong><br/>Gini Index: <br/>
+                    <strong>2019:</strong> ${d['properties']['FIPS_STCO'] in countyGiniMap ? countyGiniMap[d['properties']['FIPS_STCO']].find(arr => arr[0] === 2019)[1] : 0}<br/>
+                    <strong>2018:</strong> ${d['properties']['FIPS_STCO'] in countyGiniMap ? countyGiniMap[d['properties']['FIPS_STCO']].find(arr => arr[0] === 2018)[1] : 0}<br/>
+                    <strong>2017:</strong> ${d['properties']['FIPS_STCO'] in countyGiniMap ? countyGiniMap[d['properties']['FIPS_STCO']].find(arr => arr[0] === 2017)[1] : 0}<br/>
+                    <strong>2016:</strong> ${d['properties']['FIPS_STCO'] in countyGiniMap ? countyGiniMap[d['properties']['FIPS_STCO']].find(arr => arr[0] === 2016)[1] : 0}<br/>
+                    <strong>2015:</strong> ${d['properties']['FIPS_STCO'] in countyGiniMap ? countyGiniMap[d['properties']['FIPS_STCO']].find(arr => arr[0] === 2015)[1] : 0}<br/>
+                    <strong>2014:</strong> ${d['properties']['FIPS_STCO'] in countyGiniMap ? countyGiniMap[d['properties']['FIPS_STCO']].find(arr => arr[0] === 2014)[1] : 0}<br/>
+                    <strong>2013:</strong> ${d['properties']['FIPS_STCO'] in countyGiniMap ? countyGiniMap[d['properties']['FIPS_STCO']].find(arr => arr[0] === 2013)[1] : 0}<br/>`)
+                    
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY + 10) + "px");
                 })
-                .on("mousemove", (m, d) => {
-                    tooltip.style("opacity", .9)
+                .on("mousemove", (event, d) => {
+                    tooltip.style("left", (event.pageX + 10) + "px")
+                           .style("top", (event.pageY + 10) + "px")
+                           .style("opacity", .9);
                 })
-                .on("mouseout", (m, d) => {
+                .on("mouseout", (event, d) => {
                     tooltip.transition()
                         .duration(400)
                         .style("opacity", 0)
